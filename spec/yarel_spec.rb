@@ -38,6 +38,10 @@ describe "yarel" do
       q1.to_yql.should == "SELECT * FROM answers.getbycategory LIMIT 10"
       q2.to_yql.should == "SELECT * FROM answers.getbycategory LIMIT 5"
     end
+    
+    it "for offset along with limit" do
+      @yarel.limit(10, 20).to_yql.should == "SELECT * FROM answers.getbycategory LIMIT 20 OFFSET 10"
+    end
 
     describe "where" do
       it "hash" do
@@ -63,6 +67,13 @@ describe "yarel" do
       it "should not mutate the current object" do
         @yarel.where(["this_column = ?", 5]).to_yql.should == "SELECT * FROM answers.getbycategory WHERE this_column = 5"
         @yarel.where(["this_column = ? AND that_column = ?", 5, 10]).to_yql.should == "SELECT * FROM answers.getbycategory WHERE this_column = 5 AND that_column = 10"
+      end
+      
+      describe "where with sub queries" do
+        it "as a hash" do
+          @yarel.where(:this_column => Yarel.new(:sub_table).project("sub_table_column")).to_yql.should == 
+            "SELECT * FROM answers.getbycategory WHERE this_column in ( SELECT sub_table_column FROM sub_table )"
+        end
       end
     end
   end
