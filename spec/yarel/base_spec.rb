@@ -27,5 +27,10 @@ describe "Yarel::Base" do
         {"MapUrl"=>"http://maps.yahoo.com/maps_result?q1=1155+Reed+Ave+Sunnyvale+CA&gid1=21332026", "Distance"=>"1.79", "Longitude"=>"-121.997904", "City"=>"Sunnyvale", "Url"=>"http://local.yahoo.com/info-21332026-vitos-famous-pizza-sunnyvale", "Title"=>"Vitos Famous Pizza", "Latitude"=>"37.367029", "Phone"=>"(408) 246-8800", "id"=>"21332026", "Categories"=>{"Category"=>[{"id"=>"96926190", "content"=>"Italian Restaurants"}, {"id"=>"96926234", "content"=>"Carry Out & Take Out"}, {"id"=>"96926236", "content"=>"Restaurants"}, {"id"=>"96926242", "content"=>"Fast Food"}, {"id"=>"96926243", "content"=>"Pizza"}]}, "BusinessUrl"=>"http://vitosfamouspizza.com/", "ClickUrl"=>"http://local.yahoo.com/info-21332026-vitos-famous-pizza-sunnyvale", "Rating"=>{"TotalReviews"=>"16", "AverageRating"=>"4.5", "TotalRatings"=>"16", "LastReviewIntro"=>"As an East Coaster, I am picky about my pizza, and this place is really a great find!", "LastReviewDate"=>"1247669752"}, "Address"=>"1155 Reed Ave", "State"=>"CA", "BusinessClickUrl"=>"http://vitosfamouspizza.com/"}
       ]
     end
+
+    it "should handle empty results" do
+      places = Yarel::Table.new("geo.places")
+      places.where(:text => "unkown place").all.should == []
+    end
   end
 end

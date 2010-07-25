@@ -14,10 +14,10 @@ module Yarel
     
     def all
       yql = to_yql
-      puts "Generated YQL: #{yql.inspect}\n"
+      Logger.info "Generated YQL: #{yql.inspect}\n"
       response = Connection.get(yql)
       raise Exception.new(response["error"]["description"]) if response["error"]
-      [response["query"]["results"].first[1]].flatten
+      response["query"]["results"] ? [response["query"]["results"].first[1]].flatten : []
     end    
 
     def from(table_name)

@@ -22,3 +22,5 @@ module Yarel
   end  
 end
 require 'yarel/extensions/object_extensions'
+
+Logger = ActiveSupport::BufferedLogger.new(File.open('yarel.log', 'w+')) unless Module.const_defined?("Logger")

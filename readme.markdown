@@ -21,7 +21,8 @@ Example
     # => "SELECT * FROM search.news WHERE query = 'election' LIMIT 2 OFFSET 10"
     
     
-    Yarel::LocalSearch.where("(latitude,longitude)" => Yarel::GeoPlaces.select("centroid.latitude, centroid.longitude").where(:text => "north beach, san francisco")).where(:radius => 1, :query => 'pizza').sort('AverageRating').to_yql
+    sub_query = Yarel::GeoPlaces.select("centroid.latitude, centroid.longitude").where(:text => "north beach, san francisco")
+    Yarel::LocalSearch.where("(latitude,longitude)" => sub_query).where(:radius => 1, :query => 'pizza').sort('AverageRating').to_yql
     # => "SELECT * FROM local.search WHERE (latitude,longitude) in ( SELECT centroid.latitude, centroid.longitude FROM geo.places WHERE text = 'north beach, san francisco' ) AND radius = '1' AND query = 'pizza' | sort(field='AverageRating')"
     
     
