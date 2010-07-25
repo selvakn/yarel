@@ -13,7 +13,9 @@ module Yarel
     end
     
     def all
-      response = Connection.get(to_yql)
+      yql = to_yql
+      puts "Generated YQL: #{yql.inspect}\n"
+      response = Connection.get(yql)
       raise Exception.new(response["error"]["description"]) if response["error"]
       [response["query"]["results"].first[1]].flatten
     end    
