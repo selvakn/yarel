@@ -45,36 +45,40 @@ describe "yarel" do
 
     describe "where" do
       it "hash" do
-        @yarel_table.where(:this_column => 5).to_yql.should == "SELECT * FROM answers.getbycategory WHERE this_column = 5"
+        @yarel_table.where(:this_column => 5).to_yql.should == "SELECT * FROM answers.getbycategory WHERE this_column = '5'"
       end
 
       it "string" do
-        @yarel_table.where("this_column = 5").to_yql.should == "SELECT * FROM answers.getbycategory WHERE this_column = 5"
+        @yarel_table.where("this_column = '5'").to_yql.should == "SELECT * FROM answers.getbycategory WHERE this_column = '5'"
       end
 
       it "array interpolation" do
-        @yarel_table.where(["this_column = ?", 5]).to_yql.should == "SELECT * FROM answers.getbycategory WHERE this_column = 5"
+        @yarel_table.where(["this_column = ?", 'asd']).to_yql.should == "SELECT * FROM answers.getbycategory WHERE this_column = 'asd'"
       end
 
       it "should multiple interpolation" do
-        @yarel_table.where(["this_column = ? AND that_column = ?", 5, 10]).to_yql.should == "SELECT * FROM answers.getbycategory WHERE this_column = 5 AND that_column = 10"
+        @yarel_table.where(["this_column = ? AND that_column = ?", 5, 10]).to_yql.should == "SELECT * FROM answers.getbycategory WHERE this_column = '5' AND that_column = '10'"
       end
 
       it "should be able to call multiple times" do
-        @yarel_table.where(["this_column = ?", 5]).project(:this_column).where(:that_column => 10).to_yql.should == "SELECT this_column FROM answers.getbycategory WHERE this_column = 5 AND that_column = 10"
+        @yarel_table.where(["this_column = ?", 5]).project(:this_column).where(:that_column => 10).to_yql.should == "SELECT this_column FROM answers.getbycategory WHERE this_column = '5' AND that_column = '10'"
       end
 
       it "should not mutate the current object" do
-        @yarel_table.where(["this_column = ?", 5]).to_yql.should == "SELECT * FROM answers.getbycategory WHERE this_column = 5"
-        @yarel_table.where(["this_column = ? AND that_column = ?", 5, 10]).to_yql.should == "SELECT * FROM answers.getbycategory WHERE this_column = 5 AND that_column = 10"
+        @yarel_table.where(["this_column = ?", 5]).to_yql.should == "SELECT * FROM answers.getbycategory WHERE this_column = '5'"
+        @yarel_table.where(["this_column = ? AND that_column = ?", 5, 10]).to_yql.should == "SELECT * FROM answers.getbycategory WHERE this_column = '5' AND that_column = '10'"
       end
-
+      
       describe "where with sub queries" do
         it "as a hash" do
           @yarel_table.where(:this_column => Yarel::Table.new(:sub_table).project("sub_table_column")).to_yql.should ==
             "SELECT * FROM answers.getbycategory WHERE this_column in ( SELECT sub_table_column FROM sub_table )"
         end
       end
+    end
+    
+    it "for sort" do
+      @yarel_table.sort('Rating.AverageRating').to_s.should == "SELECT * FROM answers.getbycategory | sort(field='Rating.AverageRating')"
     end
   end
 end

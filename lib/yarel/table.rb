@@ -1,6 +1,6 @@
 module Yarel
   class Table
-    attr_accessor :table_name, :projections, :conditions, :limit_to, :offset
+    attr_accessor :table_name, :projections, :conditions, :limit_to, :offset, :sort_columns
 
     def initialize(table_name)
       @table_name = table_name
@@ -25,12 +25,12 @@ module Yarel
       case
       when condition.kind_of?(Hash)
         condition.map do |key, value|
-          condition_string = value.kind_of?(self.class) ? "#{key} in ( #{value.to_yql} )" : "#{key} = #{value}"
+          condition_string = value.kind_of?(self.class) ? "#{key} in ( #{value.to_yql} )" : "#{key} = '#{value}'"
         end
       when condition.kind_of?(String)
         condition
       when condition.kind_of?(Array)
-        send :sprintf, condition[0].gsub("?", "%s"), *condition[1..-1]
+        send :sprintf, condition[0].gsub("?", "'%s'"), *condition[1..-1]
       end
 
       modify_clone { self.conditions << new_condition }
@@ -44,14 +44,21 @@ module Yarel
         self.offset = off.to_i if off
       }
     end
+    
+    def sort(*columns)
+      modify_clone { self.sort_columns = columns.try(:join, ", ") }
+    end
 
     def to_yql
       yql = ["SELECT #{projections} FROM #{table_name}"]
       yql << "WHERE #{conditions.join(' AND ')}" unless conditions.empty?
       yql << "LIMIT #{limit_to}" if limit_to != :default
       yql << "OFFSET #{offset}" if offset != :default
+      yql << "| sort(field='#{sort_columns}')" if sort_columns
       yql.join " "
     end
+    
+    alias_method :to_s, :to_yql
 
     private
     def modify_clone(&block)
