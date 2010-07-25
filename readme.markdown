@@ -1,11 +1,15 @@
 ## YAREL ##
 
-Object Relation Mapper for YQL
+YQL Object Relational Mapper for Ruby
 
 Example
 -------
 
     require 'yarel'
+
+    Yarel::GeoPlacetypes.all
+    # Generated YQL: "SELECT * FROM geo.placetype"
+    # => [{"uri"=>"http://where.yahooapis.com/v1/placetype/0", ..}, ..]
 
     Yarel::GeoPlaces.where(:text => "north beach, san francisco").all
     # Generated YQL: "SELECT * FROM geo.places WHERE text = 'north beach, san francisco'"
