@@ -82,3 +82,10 @@ describe "yarel" do
     end
   end
 end
+
+
+describe "yarel module" do
+  it "should construct table object" do
+    Yarel::GeoLocation.should be_kind_of Yarel::Table
+  end
+end

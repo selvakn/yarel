@@ -1,14 +1,22 @@
 module Yarel
+  class Exception < StandardError
+  end
+  
   class Table
     attr_accessor :table_name, :projections, :conditions, :limit_to, :offset, :sort_columns
-
+    
     def initialize(table_name)
       @table_name = table_name
       @projections = "*"
       @conditions = []
-      @limit_to = :default
-      @offset = :default
+      @limit_to = @offset = :default
     end
+    
+    def all
+      response = Connection.get(to_yql)
+      raise Exception.new(response["error"]["description"]) if response["error"]
+      [response["query"]["results"].first[1]].flatten
+    end    
 
     def from(table_name)
       modify_clone { self.table_name = table_name }
@@ -48,6 +56,8 @@ module Yarel
     def sort(*columns)
       modify_clone { self.sort_columns = columns.try(:join, ", ") }
     end
+    
+    alias_method :order, :sort
 
     def to_yql
       yql = ["SELECT #{projections} FROM #{table_name}"]
