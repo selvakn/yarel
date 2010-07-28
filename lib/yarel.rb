@@ -10,10 +10,14 @@ require 'active_support/core_ext/class/attribute_accessors'
 
 module Yarel
   extend ActiveSupport::Autoload
+  
+  class Exception < StandardError
+  end
+  
   eager_autoload do
     autoload :Table
     autoload :Connection
-    # autoload :Base
+    autoload :Base
   end
   
   def Yarel.const_missing(const_name)
