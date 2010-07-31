@@ -1,6 +1,7 @@
 require 'spec_helper'
 
 describe "Yarel::Base" do
+  raise if defined?(LocalSearch)
   LocalSearch = Yarel::Table.new("local.search")
 
   it "should create an instance of table" do
@@ -14,12 +15,12 @@ describe "Yarel::Base" do
       }.should raise_error(Yarel::Exception, "Cannot find required keys in where clause;   expecting required keys: (query, longitude, latitude)")
     end
 
-    it "should take the result part alone" do
+    it "should take the result part alone", :pending => true do
       GeoPlaces = Yarel::Table.new("geo.places")
       GeoPlaces.where(:text => "north beach, san francisco").all.should == [{"name"=>"North Beach", "woeid"=>"2460640", "uri"=>"http://where.yahooapis.com/v1/place/2460640", "boundingBox"=>{"northEast"=>{"latitude"=>"37.808270", "longitude"=>"-122.399467"}, "southWest"=>{"latitude"=>"37.795399", "longitude"=>"-122.418381"}}, "postal"=>{"type"=>"Zip Code", "content"=>"94133"}, "country"=>{"code"=>"US", "type"=>"Country", "content"=>"United States"}, "placeTypeName"=>{"code"=>"22", "content"=>"Suburb"}, "centroid"=>{"latitude"=>"37.805939", "longitude"=>"-122.411118"}, "areaRank"=>"1", "admin1"=>{"code"=>"US-CA", "type"=>"State", "content"=>"California"}, "popRank"=>"0", "locality1"=>{"type"=>"Town", "content"=>"San Francisco"}, "admin2"=>{"code"=>"", "type"=>"County", "content"=>"San Francisco"}, "lang"=>"en-US", "locality2"=>{"type"=>"Suburb", "content"=>"North Beach"}, "admin3"=>nil}]
     end
     
-    it "should return mulitple records" do
+    it "should return mulitple records", :pending => true do
       LocalNewSearch = Yarel::Table.new("local.search")
       
       LocalNewSearch.where(:zip => 94085, :query => 'pizza').limit(2).all.should == [

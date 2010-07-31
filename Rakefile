@@ -1,19 +1,16 @@
 require "rubygems"
+require "rake"
 begin
-  require "spec/rake/spectask"
+  require "rspec/core/rake_task"
 rescue LoadError
   desc "Run specs"
   task(:spec) { $stderr.puts '`gem install rspec` to run specs' }
 else
   desc "Run all Specs"
-  Spec::Rake::SpecTask.new(:spec) do |t|
-    t.spec_opts = ['--options', "\"#{File.dirname(__FILE__)}/spec/spec.opts\""]
-    t.libs << "#{File.dirname(__FILE__)}/spec"
-    # t.warning = true
-    t.spec_files = FileList['spec/**/*_spec.rb']
+  RSpec::Core::RakeTask.new(:spec) do |t|
   end
   
-  task :default => :spec  
+  task :default => :spec
 end
 
 desc 'Removes trailing whitespace'

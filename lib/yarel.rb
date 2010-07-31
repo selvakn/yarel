@@ -7,6 +7,8 @@ require 'active_support/core_ext/string/inflections'
 require 'active_support/core_ext/module/attribute_accessors'
 require 'active_support/core_ext/module/delegation'
 require 'active_support/core_ext/class/attribute_accessors'
+require 'tzinfo'
+require 'active_support/json/decoding'
 
 module Yarel
   extend ActiveSupport::Autoload

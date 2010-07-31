@@ -34,13 +34,7 @@ module Yarel
     end
     
     def self.included(klass)
-      klass.cattr_accessor :table
-      # klass.table = Table.new()
-      klass.instance_eval do
-        class << self
-          delegate :to_yql, :to => :table
-        end
-      end
+      klass.delegate :to_yql, :to => :table
       klass.extend ClassMethods
     end
   end

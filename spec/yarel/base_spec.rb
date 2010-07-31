@@ -5,6 +5,10 @@ describe "Yarel::Base" do
     include Yarel::Base
   end
   
+  before :each do
+    MyModel.table_name = nil
+  end
+  
   it "should set the table name" do
     MyModel.table_name.should == "my.model"
   end
@@ -15,7 +19,11 @@ describe "Yarel::Base" do
   end
   
   it "should have a table object with the same table name" do
-    pending
+    old_table = MyModel.table
     MyModel.table.table_name.should == "my.model"
+    
+    MyModel.table_name = "custom.tablename"
+    MyModel.table.should_not == old_table
+    MyModel.table.table_name.should == "custom.tablename"
   end
 end
