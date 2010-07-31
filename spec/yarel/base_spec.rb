@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe "Yarel::Base" do
+describe Yarel::Base do
   class MyModel
     include Yarel::Base
   end

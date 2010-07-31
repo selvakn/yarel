@@ -1,16 +1,18 @@
 require 'spec_helper'
 
-describe "yarel" do
+describe Yarel::Table do
   before(:each) do
     @table_name = "answers.getbycategory"
     @yarel_table = Yarel::Table.new(@table_name)
   end
 
-  it "should be chainable" do
-    @yarel_table.from("answers.new_table").should be_kind_of(Yarel::Table)
+  context "from" do
+    it "should be chainable" do
+      @yarel_table.from("answers.new_table").should be_kind_of(Yarel::Table)
+    end
   end
 
-  describe "return the yql" do
+  context "to_yql" do
     it "should be constructed taking the table name" do
       yarel_table = Yarel::Table.new("ns.table_name").to_yql.should == "SELECT * FROM ns.table_name"
     end
@@ -77,15 +79,8 @@ describe "yarel" do
       end
     end
     
-    it "for sort" do
+    it "should sort" do
       @yarel_table.sort('Rating.AverageRating').to_s.should == "SELECT * FROM answers.getbycategory | sort(field='Rating.AverageRating')"
     end
-  end
-end
-
-
-describe "yarel module" do
-  it "should construct table object" do
-    Yarel::GeoLocation.should be_kind_of Yarel::Table
   end
 end
