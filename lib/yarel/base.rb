@@ -1,8 +1,24 @@
 module Yarel
-  module Base
-    attr_accessor :count
-
-    module ClassMethods
+  class Base
+    include ActiveModel::AttributeMethods
+    include ActiveModel::Conversion
+    include ActiveModel::Validations
+    
+    extend ActiveModel::Naming
+    extend ActiveModel::Translation
+    
+    delegate :to_yql, :to => :table
+    attr_accessor :count, :errors
+    
+    def errors
+      @errors ||= ActiveModel::Errors.new(self)
+    end
+    
+    def persisted?
+      false
+    end
+    
+    class << self
       def all
         response = Connection.get(table.to_yql)
         raise Exception.new(response["error"]["description"]) if response["error"]
@@ -31,11 +47,6 @@ module Yarel
       #   end
       #   RUBY_EVAL
       # end
-    end
-    
-    def self.included(klass)
-      klass.delegate :to_yql, :to => :table
-      klass.extend ClassMethods
     end
   end
 end

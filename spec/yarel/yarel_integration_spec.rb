@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe "Yarel::Base" do
+describe Yarel::Base do
   raise if defined?(LocalSearch)
   LocalSearch = Yarel::Table.new("local.search")
 

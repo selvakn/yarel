@@ -1,8 +1,7 @@
 require 'spec_helper'
 
 describe Yarel::Base do
-  class MyModel
-    include Yarel::Base
+  class MyModel < Yarel::Base
   end
   
   before :each do
@@ -25,5 +24,20 @@ describe Yarel::Base do
     MyModel.table_name = "custom.tablename"
     MyModel.table.should_not == old_table
     MyModel.table.table_name.should == "custom.tablename"
+  end
+  
+  describe "ActiveModel Lint tests" do
+    include Test::Unit::Assertions
+    include ActiveModel::Lint::Tests
+
+    ActiveModel::Lint::Tests.public_instance_methods.map{|m| m.to_s}.grep(/^test/).each do |m|
+      example m.gsub('_',' ') do
+        send m
+      end
+    end
+
+    def model
+      MyModel.new
+    end
   end
 end
