@@ -1,7 +1,4 @@
 module Yarel
-  class Exception < StandardError
-  end
-  
   class Table
     attr_accessor :table_name, :projections, :conditions, :limit_to, :offset, :sort_columns
     
@@ -62,12 +59,13 @@ module Yarel
     alias_method :order, :sort
 
     def to_yql
-      yql = ["SELECT #{projections} FROM #{table_name}"]
-      yql << "WHERE #{conditions.join(' AND ')}" unless conditions.empty?
-      yql << "LIMIT #{limit_to}" if limit_to != :default
-      yql << "OFFSET #{offset}" if offset != :default
-      yql << "| sort(field='#{sort_columns}')" if sort_columns
-      yql.join " "
+      [].tap do |yql|
+        yql << ["SELECT #{projections} FROM #{table_name}"]
+        yql << "WHERE #{conditions.join(' AND ')}" unless conditions.empty?
+        yql << "LIMIT #{limit_to}" if limit_to != :default
+        yql << "OFFSET #{offset}" if offset != :default
+        yql << "| sort(field='#{sort_columns}')" if sort_columns
+      end.join " "
     end
     
     alias_method :to_s, :to_yql

@@ -20,6 +20,7 @@ module Yarel
   end
   
   eager_autoload do
+    autoload :Query
     autoload :Table
     autoload :Connection
     autoload :Base
