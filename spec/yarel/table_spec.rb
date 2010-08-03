@@ -6,13 +6,13 @@ describe Yarel::Table do
     @yarel_table = Yarel::Table.new(@table_name)
   end
 
-  context "from" do
+  context "#from" do
     it "should be chainable" do
       @yarel_table.from("answers.new_table").should be_kind_of(Yarel::Table)
     end
   end
 
-  context "to_yql" do
+  context "#to_yql" do
     it "should be constructed taking the table name" do
       yarel_table = Yarel::Table.new("ns.table_name").to_yql.should == "SELECT * FROM ns.table_name"
     end
@@ -45,7 +45,7 @@ describe Yarel::Table do
       @yarel_table.limit(10, 20).to_yql.should == "SELECT * FROM answers.getbycategory LIMIT 20 OFFSET 10"
     end
 
-    describe "where" do
+    describe "#where" do
       it "hash" do
         @yarel_table.where(:this_column => 5).to_yql.should == "SELECT * FROM answers.getbycategory WHERE this_column = '5'"
       end
