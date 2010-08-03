@@ -2,16 +2,39 @@ module Yarel
   class Base
     include ActiveModel::AttributeMethods
     include ActiveModel::Conversion
-    include ActiveModel::Validations
     
     extend ActiveModel::Naming
     extend ActiveModel::Translation
     
     delegate :to_yql, :to => :table
-    attr_accessor :count, :errors
+    attr_accessor :count, :errors, :attributes
+    
+    def initialize(attributes={})
+      @attributes = attributes.stringify_keys
+      
+      (class << self; self; end).tap do |eigenclass|
+        @attributes.keys.each do |attribute_name|
+          eigenclass.module_eval <<-RUBY, __FILE__, __LINE__
+            def #{attribute_name}
+              @attributes['#{attribute_name}']
+            end
+            
+            def #{attribute_name}=(value)
+              @attributes['#{attribute_name}'] = value
+            end
+          RUBY
+        end
+        eigenclass.define_attribute_methods @attributes.keys
+      end
+    end
     
     def errors
-      @errors ||= ActiveModel::Errors.new(self)
+      require 'ostruct'
+      OpenStruct.new(:[] => [], :full_messages => [])
+    end
+    
+    def valid?
+      true
     end
     
     def persisted?
@@ -25,7 +48,6 @@ module Yarel
         [response["query"]["results"].first[1]].flatten
       end
       
-
       def table_name
         @table_name ||= self.name.underscore.gsub("_", ".")
       end

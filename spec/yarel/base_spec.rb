@@ -26,6 +26,28 @@ describe Yarel::Base do
     MyModel.table.table_name.should == "custom.tablename"
   end
   
+  context "initialize" do
+    it "should make the given attributes accessible" do
+      MyModel.new(:foo => "bar").attributes["foo"].should == "bar"
+    end
+  
+    it "should make the given attributes available as getters on initialize" do
+      MyModel.new(:foo => "bar").foo.should == "bar"
+    end
+  
+    it "should make the given attributes available as setters that update the attributes hash" do
+      MyModel.new(:foo => "bar").tap do |o|
+        o.foo = "baz"
+        o.foo.should == "baz"
+        o.attributes["foo"].should == "baz"
+      end
+    end
+  
+    it "should not build getters for keys that aren't passed in initialize" do
+      lambda { MyModel.new.foo }.should raise_error(NoMethodError)
+    end
+  end
+  
   describe "ActiveModel Lint tests" do
     include Test::Unit::Assertions
     include ActiveModel::Lint::Tests
