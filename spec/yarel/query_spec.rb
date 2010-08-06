@@ -146,10 +146,15 @@ describe Yarel::Query do
         "SELECT * FROM some.table WHERE this_column IN (SELECT sub_table_column FROM sub_table)"
     end
   end
-
-  context "#to_yql", :pending => true do
-    it "should sort" do
-      @yarel_table.sort('Rating.AverageRating').to_s.should == "SELECT * FROM answers.getbycategory | sort(field='Rating.AverageRating')"
+  
+  context "#sort" do
+    it "should add the given sort field to the query" do
+      Yarel::Query.new("some.table").sort("Rating.AverageRating").sort_field.should == "Rating.AverageRating"
+    end
+    
+    it "should be incorporated into the generated YQL" do
+      Yarel::Query.new("some.table").
+        sort("Rating.AverageRating").to_yql.should == "SELECT * FROM some.table | sort(field='Rating.AverageRating')"
     end
   end
 end

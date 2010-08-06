@@ -1,20 +1,22 @@
 module Yarel
   class Query
-    attr_reader :table, :projections, :result_limit, :conditions, :result_offset
+    attr_reader :table, :projections, :result_limit, :conditions, :result_offset, :sort_field
     
     def initialize(table, opts={})
       @table = table
       @projections = opts[:projections] || ["*"]
       @result_limit = opts[:result_limit]
       @result_offset = opts[:result_offset]
+      @sort_field = opts[:sort_field]
       @conditions = opts[:conditions] || []
     end
     
     def to_yql
-      "SELECT #{self.projections.join(', ')} FROM #{self.table}".tap do |query|
-        query << " LIMIT #{self.result_limit}" unless self.result_limit.nil?
-        query << " OFFSET #{self.result_offset}" unless self.result_offset.nil?
-        query << " WHERE #{self.conditions.join(' AND ')}" unless self.conditions.empty?
+      "SELECT #{self.projections.join(', ')} FROM #{self.table}".tap do |q|
+        q << " LIMIT #{self.result_limit}" unless self.result_limit.nil?
+        q << " OFFSET #{self.result_offset}" unless self.result_offset.nil?
+        q << " WHERE #{self.conditions.join(' AND ')}" unless self.conditions.empty?
+        q << " | sort(field='#{sort_field}')" unless self.sort_field.nil?
       end
     end
     
@@ -28,6 +30,10 @@ module Yarel
     
     def limit(result_limit, result_offset=nil)
       chain(:result_limit => result_limit, :result_offset => result_offset)
+    end
+    
+    def sort(sort_field)
+      chain(:sort_field => sort_field)
     end
     
     def where(condition)
@@ -57,7 +63,8 @@ module Yarel
           attributes[:table] || @table, 
           { :result_limit => @result_limit,
             :projections => @projections,
-            :result_offset => @result_offset
+            :result_offset => @result_offset,
+            :sort_field => @sort_field
           }.merge(attributes)
         )
       end
