@@ -82,47 +82,72 @@ describe Yarel::Query do
     it "should be incorporated into the generated YQL" do
       Yarel::Query.new("some.table").limit(10).to_yql.should == "SELECT * FROM some.table LIMIT 10"
     end
-  end
-
-  context "#to_yql", :pending => true do
-    it "for offset along with limit" do
-      @yarel_table.limit(10, 20).to_yql.should == "SELECT * FROM answers.getbycategory LIMIT 20 OFFSET 10"
-    end
-
-    describe "#where" do
-      it "hash" do
-        @yarel_table.where(:this_column => 5).to_yql.should == "SELECT * FROM answers.getbycategory WHERE this_column = '5'"
-      end
-
-      it "string" do
-        @yarel_table.where("this_column = '5'").to_yql.should == "SELECT * FROM answers.getbycategory WHERE this_column = '5'"
-      end
-
-      it "array interpolation" do
-        @yarel_table.where(["this_column = ?", 'asd']).to_yql.should == "SELECT * FROM answers.getbycategory WHERE this_column = 'asd'"
-      end
-
-      it "should multiple interpolation" do
-        @yarel_table.where(["this_column = ? AND that_column = ?", 5, 10]).to_yql.should == "SELECT * FROM answers.getbycategory WHERE this_column = '5' AND that_column = '10'"
-      end
-
-      it "should be able to call multiple times" do
-        @yarel_table.where(["this_column = ?", 5]).project(:this_column).where(:that_column => 10).to_yql.should == "SELECT this_column FROM answers.getbycategory WHERE this_column = '5' AND that_column = '10'"
-      end
-
-      it "should not mutate the current object" do
-        @yarel_table.where(["this_column = ?", 5]).to_yql.should == "SELECT * FROM answers.getbycategory WHERE this_column = '5'"
-        @yarel_table.where(["this_column = ? AND that_column = ?", 5, 10]).to_yql.should == "SELECT * FROM answers.getbycategory WHERE this_column = '5' AND that_column = '10'"
-      end
-      
-      describe "where with sub queries" do
-        it "as a hash" do
-          @yarel_table.where(:this_column => Yarel::Table.new(:sub_table).project("sub_table_column")).to_yql.should ==
-            "SELECT * FROM answers.getbycategory WHERE this_column in ( SELECT sub_table_column FROM sub_table )"
-        end
+    
+    it "should take an optional second argument for specifying the offset" do
+      Yarel::Query.new("some.table").limit(5, 15).tap do |query|
+        query.result_limit.should == 5
+        query.result_offset.should == 15
       end
     end
     
+    it "should incorporate offset into the generated YQL" do
+      Yarel::Query.new("some.table").limit(5, 15).to_yql.should == "SELECT * FROM some.table LIMIT 5 OFFSET 15"
+    end
+  end
+  
+  context "#conditions" do
+    it "should be empty by default" do
+      Yarel::Query.new("some.table").conditions.should be_empty
+    end
+    
+    it "should be initializable through the constructor" do
+      Yarel::Query.new("some.table", :conditions => ["this_column = '5'"]).conditions.should == ["this_column = '5'"]
+    end
+  end
+  
+  context "#where" do
+    it "should accept a hash of a single parameter" do
+      Yarel::Query.new("some.table").where(:this_column => 5).conditions.should == ["this_column = '5'"]
+    end
+    
+    it "should accept a hash of multiple parameters" do
+      Yarel::Query.new("some.table").
+        where(:this_column => 5, :that_column => 10).conditions.should == ["this_column = '5'", "that_column = '10'"]
+    end
+    
+    it "should allow you to chain multiple conditions" do
+      Yarel::Query.new("some.table").
+        where(:this_column => 5).
+        where(:that_column => 6).conditions.should == ["this_column = '5'", "that_column = '6'"]
+    end
+    
+    it "should accept a string of parameters" do
+      Yarel::Query.new("some.table").where("this_column = '5'").conditions.should == ["this_column = '5'"]
+    end
+    
+    it "should accept an array of parameters and interpolate them appropriately" do
+      Yarel::Query.new("some.table").
+        where(["this_column = ? AND that_column = ?", 5, 10]).conditions.should == ["this_column = '5' AND that_column = '10'"]
+    end
+    
+    it "should add a single given condition to the generated YQL" do
+      Yarel::Query.new("some.table").
+        where(:this_column => 5).to_yql.should == "SELECT * FROM some.table WHERE this_column = '5'"
+    end
+    
+    it "should add multiple given conditions to the generated YQL" do
+      Yarel::Query.new("some.table").
+        where(:this_column => 5).
+        where("that_column = '10'").to_yql.should == "SELECT * FROM some.table WHERE this_column = '5' AND that_column = '10'"
+    end
+    
+    it "should handle subqueries" do
+      Yarel::Query.new("some.table").where(:this_column => Yarel::Query.new("sub_table").project("sub_table_column")).to_yql.should ==
+        "SELECT * FROM some.table WHERE this_column IN (SELECT sub_table_column FROM sub_table)"
+    end
+  end
+
+  context "#to_yql", :pending => true do
     it "should sort" do
       @yarel_table.sort('Rating.AverageRating').to_s.should == "SELECT * FROM answers.getbycategory | sort(field='Rating.AverageRating')"
     end
