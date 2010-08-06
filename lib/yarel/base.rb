@@ -45,7 +45,8 @@ module Yarel
       def all
         response = Connection.get(table.to_yql)
         raise Exception.new(response["error"]["description"]) if response["error"]
-        [response["query"]["results"].first[1]].flatten
+        [ response["query"]["results"] ].flatten.map {|result| self.new(result) }
+        # [response["query"]["results"].first[1]].flatten
       end
       
       def table_name

@@ -50,6 +50,39 @@ describe Yarel::Base do
     end
   end
   
+  context ".all" do
+    it "should raise exception back if response has errors" do
+      Yarel::Connection.should_receive(:get).and_return error_hash("Cannot service your request, good sir")
+      lambda { MyModel.all }.should raise_error(Yarel::Exception, "Cannot service your request, good sir")
+    end
+    
+    it "should be empty if no results are returned" do
+      Yarel::Connection.should_receive(:get).and_return response_hash([])
+      MyModel.all.should be_empty
+    end
+    
+    it "should instantiate one instance of MyModel if one result is returned" do
+      Yarel::Connection.should_receive(:get).and_return response_hash([{:foo => "bar"}])
+      MyModel.all.tap do |results|
+        results.size.should == 1
+        results.first.foo.should == "bar"
+      end
+    end
+    
+    it "should instantiate one instance of MyModel for each result returned" do
+      Yarel::Connection.should_receive(:get).and_return response_hash(
+        [{:foo => "bar"}, {:foo => "qux"}, {:foo => "hrmph"}]
+      )
+      
+      MyModel.all.tap do |results|
+        results.size.should == 3
+        results[0].foo.should == "bar"
+        results[1].foo.should == "qux"
+        results[2].foo.should == "hrmph"
+      end
+    end
+  end
+  
   describe "ActiveModel Lint tests" do
     include Test::Unit::Assertions
     include ActiveModel::Lint::Tests
