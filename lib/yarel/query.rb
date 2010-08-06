@@ -2,8 +2,10 @@ module Yarel
   class Query
     attr_reader :table, :projections, :result_limit, :conditions, :result_offset, :sort_field
     
-    def initialize(table, opts={})
+    def initialize(connection, table, opts={})
+      @connection = connection
       @table = table
+      
       @projections = opts[:projections] || ["*"]
       @result_limit = opts[:result_limit]
       @result_offset = opts[:result_offset]
@@ -59,8 +61,7 @@ module Yarel
     private
     
       def chain(attributes={})
-        self.class.new(
-          attributes[:table] || @table, 
+        self.class.new(@connection, attributes[:table] || @table,
           { :result_limit => @result_limit,
             :projections => @projections,
             :result_offset => @result_offset,
