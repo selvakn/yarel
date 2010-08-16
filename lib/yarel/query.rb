@@ -1,9 +1,11 @@
 module Yarel
   class Query
-    attr_reader :table, :projections, :result_limit, :conditions, :result_offset, :sort_field
+    include Enumerable
     
-    def initialize(connection, table, opts={})
-      @connection = connection
+    attr_reader :table, :projections, :result_limit, :conditions, :result_offset, :sort_field, :model_class
+    
+    def initialize(model_class, table, opts={})
+      @model_class = model_class
       @table = table
       
       @projections = opts[:projections] || ["*"]
@@ -58,10 +60,29 @@ module Yarel
       chain(:conditions => self.conditions + condition_list)
     end
     
+    def execute
+      self.model_class.get(self.to_yql)
+    end
+    
+    def all
+      hash = self.execute
+      if hash['error']
+        raise Yarel::Exception, hash['error']['description']
+      else
+        hash['query']['results'].map do |result_hash|
+          model_class.new(result_hash)
+        end
+      end
+    end
+    
+    def each(&block)
+      all.each(&block)
+    end
+    
     private
     
       def chain(attributes={})
-        self.class.new(@connection, attributes[:table] || @table,
+        self.class.new(@model_class, attributes[:table] || @table,
           { :result_limit => @result_limit,
             :projections => @projections,
             :result_offset => @result_offset,

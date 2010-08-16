@@ -3,6 +3,7 @@ require 'rspec'
 require 'yarel'
 require 'test/unit/assertions'
 require 'active_model/lint'
+require 'ostruct'
 
 module MockConnectionHelpers
   def error_json(desired_message)

@@ -28,7 +28,8 @@ describe Yarel::Base do
     end
   end
   
-  context ".env" do
+  context ".env", :pending => true do
+    it "should add the specified env to the end of the query"
   end
   
   context "#initialize" do
