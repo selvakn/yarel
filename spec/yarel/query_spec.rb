@@ -10,7 +10,7 @@ describe Yarel::Query do
   def create_query(opts={})
     Yarel::Query.new(
       opts[:model_class] || stub_model_class,
-      opts[:table_name] || "some.table", 
+      opts[:table] || "some.table", 
       opts
     )
   end
@@ -19,24 +19,24 @@ describe Yarel::Query do
   
   context "#table" do
     it "should accept a table name" do
-      create_query(:table_name => "the.table").table.should == "the.table"
+      create_query(:table => "the.table").table.should == "the.table"
     end
   end
 
   context "#from" do
     it "should be chainable" do
-      create_query(:table_name => nil).from("answers.new_table").tap do |query|
+      create_query(:table => nil).from("answers.new_table").tap do |query|
         query.should be_kind_of(Yarel::Query)
         query.table.should == "answers.new_table"
       end
     end
     
     it "should be incorporated into the generated YQL" do
-      create_query(:table_name => "old.table").from("new.table").to_yql.should == "SELECT * FROM new.table"
+      create_query(:table => "old.table").from("new.table").to_yql.should == "SELECT * FROM new.table"
     end
     
     it "should incorporate successive calls" do
-      create_query(:table_name => "old.table").from("new.table").from("newest.table").to_yql.should == "SELECT * FROM newest.table"
+      create_query(:table => "old.table").from("new.table").from("newest.table").to_yql.should == "SELECT * FROM newest.table"
     end
   end
   
@@ -158,7 +158,7 @@ describe Yarel::Query do
     end
     
     it "should handle subqueries" do
-      create_query.where(:this_column => create_query(:table_name => "sub_table").project("sub_table_column")).to_yql.should ==
+      create_query.where(:this_column => create_query(:table => "sub_table").project("sub_table_column")).to_yql.should ==
         "SELECT * FROM some.table WHERE this_column IN (SELECT sub_table_column FROM sub_table)"
     end
   end
