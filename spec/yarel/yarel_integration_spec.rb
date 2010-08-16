@@ -2,7 +2,7 @@ require 'spec_helper'
 
 describe Yarel::Base, :pending => true do
   raise if defined?(LocalSearch)
-  LocalSearch = Yarel::Table.new("local.search")
+  # LocalSearch = Yarel::Table.new("local.search")
 
   it "should create an instance of table" do
     LocalSearch.should be_kind_of Yarel::Table

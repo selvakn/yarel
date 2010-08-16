@@ -54,15 +54,10 @@ module Yarel
       
       def table_name=(name)
         @table_name = name
-        @table = nil
       end
       
       def get(yql)
         connection.get(yql)
-      end
-      
-      def table
-        @table ||= Table.new(self.table_name)
       end
       
     end
