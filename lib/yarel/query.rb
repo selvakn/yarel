@@ -17,9 +17,9 @@ module Yarel
     
     def to_yql
       "SELECT #{self.projections.join(', ')} FROM #{self.table}".tap do |q|
+        q << " WHERE #{self.conditions.join(' AND ')}" unless self.conditions.empty?
         q << " LIMIT #{self.result_limit}" unless self.result_limit.nil?
         q << " OFFSET #{self.result_offset}" unless self.result_offset.nil?
-        q << " WHERE #{self.conditions.join(' AND ')}" unless self.conditions.empty?
         q << " | sort(field='#{sort_field}')" unless self.sort_field.nil?
       end
     end
@@ -83,7 +83,8 @@ module Yarel
     
       def chain(attributes={})
         self.class.new(@model_class, attributes[:table] || @table,
-          { :result_limit => @result_limit,
+          { :conditions => @conditions,
+            :result_limit => @result_limit,
             :projections => @projections,
             :result_offset => @result_offset,
             :sort_field => @sort_field

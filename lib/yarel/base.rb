@@ -5,9 +5,10 @@ module Yarel
     
     extend ActiveModel::Naming
     extend ActiveModel::Translation
-    
-    delegate :to_yql, :to => :table
+
     attr_accessor :count, :errors, :attributes
+    
+    QUERY_METHODS = [:from, :project, :limit, :sort, :where, :all]
     
     def initialize(attributes={})
       @attributes = attributes.stringify_keys
@@ -42,10 +43,10 @@ module Yarel
     end
     
     class << self
-      def connection
-      end
+      Yarel::Base::QUERY_METHODS.each { |method| delegate method, :to => :new_query }
       
-      def query
+      def connection
+        @connection ||= Yarel::Connection.new
       end
       
       def table_name
@@ -60,6 +61,11 @@ module Yarel
         connection.get(yql)
       end
       
+      private
+      
+        def new_query
+          Yarel::Query.new(self, self.table_name)
+        end
     end
   end
 end

@@ -119,6 +119,10 @@ describe Yarel::Query do
     it "should be initializable through the constructor" do
       create_query(:conditions => ["this_column = '5'"]).conditions.should == ["this_column = '5'"]
     end
+    
+    it "should be chainable" do
+      create_query(:conditions => ["this_column = '5'"]).send(:chain).conditions.should == ["this_column = '5'"]
+    end
   end
   
   context "#where" do
@@ -134,7 +138,7 @@ describe Yarel::Query do
     it "should allow you to chain multiple conditions" do
       create_query.
         where(:this_column => 5).
-        where(:that_column => 6).conditions.should == ["this_column = '5'", "that_column = '6'"]
+        where(:that_column => 6).conditions.should =~ ["this_column = '5'", "that_column = '6'"]
     end
     
     it "should accept a string of parameters" do

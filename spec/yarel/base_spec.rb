@@ -45,6 +45,23 @@ describe Yarel::Base do
     end
   end
   
+  context ".connection" do
+    it "should be an instance of Yarel::Connection" do
+      MyModel.connection.should be_instance_of(Yarel::Connection)
+    end
+  end
+  
+  context "query delegation" do
+    Yarel::Base::QUERY_METHODS.each do |method|
+      it "should delegate '#{method}' to a new instance of Yarel::Query" do
+        mock_query = double('query')
+        mock_query.should_receive(method)
+        Yarel::Query.should_receive(:new).and_return mock_query
+        MyModel.send(method)
+      end
+    end
+  end
+  
   describe "ActiveModel Lint tests" do
     include Test::Unit::Assertions
     include ActiveModel::Lint::Tests
